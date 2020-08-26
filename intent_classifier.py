@@ -10,7 +10,7 @@ class IntentClassifier:
 
     def __init__(self):
         self._tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
-        self._model = BertForSequenceClassification.from_pretrained("./intent_model/")
+        self._model = BertForSequenceClassification.from_pretrained("./models/intent_model/")
         self._label_map = {"search_book": 0, "borrow_place": 1, "other": 2}
         self._index_map = {v: k for k, v in self._label_map.items()}
 

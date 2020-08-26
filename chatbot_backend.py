@@ -18,7 +18,7 @@ from .faq_judge import FAQJudge
 app = Flask(__name__)
 
 
-BOOK_MODEL = BertForTokenClassification.from_pretrained("./book_model/")
+BOOK_MODEL = BertForTokenClassification.from_pretrained("./models/book_model/")
 TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 
 INTENT_CLASSIFIER = IntentClassifier()  # Intent Classifier
