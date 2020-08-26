@@ -1,0 +1,11 @@
+# .gitignore file
+
+# ignore all csv file
+*.csv
+
+# ignore model file
+*.bin
+
+# ignore some flask file
+instance/
+.webassets-cache
