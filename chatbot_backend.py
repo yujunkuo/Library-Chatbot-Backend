@@ -1,5 +1,6 @@
-import numpy as np
+import time
 import torch
+import numpy as np
 
 from flask import Flask
 from flask import request
@@ -54,13 +55,21 @@ def _get_book_name(sentence: str):
     return targets[0]
 
             
-@app.route("/", methods=["POST"])
+@app.route("/api/v1/", methods=["POST"])
 def home():
     data = request.get_json()
     sentence = data["question"]
+    start_time = time.time()
     answer = get_answer(sentence)
-    return_dict = {"answer": answer}
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict = {"answer": answer, "handle_time": handle_time}
     return jsonify(return_dict)
 
-if __name__ == "__main__":
+def main():
     app.run(debug=True, host="140.119.19.18")
+
+
+if __name__ == "__main__":
+    main()
+    
