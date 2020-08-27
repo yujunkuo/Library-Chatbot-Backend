@@ -15,6 +15,9 @@
 # ignore byte-compiled
 __pycache__/
 
+# ignore zip file such as ckip file
+*.zip
+
 # ignore some flask file
 instance/
 .webassets-cache
