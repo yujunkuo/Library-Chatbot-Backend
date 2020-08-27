@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import torch
 
@@ -6,13 +5,11 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 
-from sentence_transformers import SentenceTransformer
-from transformers import BertForSequenceClassification
 from transformers import BertForTokenClassification
 from transformers import BertTokenizer
 
-from .intent_classifier import IntentClassifier
-from .faq_judge import FAQJudge
+from intent_classifier import IntentClassifier
+from faq_judge import FAQJudge
 
 
 app = Flask(__name__)
