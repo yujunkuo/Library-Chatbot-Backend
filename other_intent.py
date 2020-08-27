@@ -1,9 +1,10 @@
 ## Other Intent Handler class
 
-import numpy as np
+import jieba
 import torch
+import numpy as np
 
-from ckiptagger import WS
+# from ckiptagger import WS
 from googletrans import Translator
 
 from sentence_transformers import SentenceTransformer
@@ -13,7 +14,7 @@ from transformers import BertForQuestionAnswering, BertTokenizer
 class OtherIntentHandler:
 
     def __init__(self):
-        self._ws = WS("./ckip")
+        # self._ws = WS("./ckip")
         self._qa_model = BertForQuestionAnswering.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
         self._tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
         self._translator = Translator()
@@ -141,10 +142,10 @@ class OtherIntentHandler:
     def _get_ch_ans_from_en_text_from_any_pos(self, ch_text, en_text):
         en_embedding = self._sbert_model.encode(en_text)
         candidate, candidate_sim = None, -1
-        ckip_ch_text = self._ws([ch_text])[0]
-        for i in range(len(ckip_ch_text)):
-            for j in range(i+1, len(ckip_ch_text)+1):
-                curr_ch_text = "".join(ckip_ch_text[i:j])
+        jieba_ch_text = jieba.lcut(ch_text)
+        for i in range(len(jieba_ch_text)):
+            for j in range(i+1, len(jieba_ch_text)+1):
+                curr_ch_text = "".join(jieba_ch_text[i:j])
                 candidate_en_text = self._trans_from_ch_to_en(curr_ch_text)
                 candidate_en_embedding = self._sbert_model.encode(candidate_en_text)[0]
                 sim = self._cal_cosine_sim(en_embedding, candidate_en_embedding)[0]
@@ -160,9 +161,9 @@ class OtherIntentHandler:
     def _get_ch_ans_from_en_text_from_start(self, ch_text, en_text):
         en_embedding = self._sbert_model.encode(en_text)
         candidate, candidate_sim = None, -1
-        ckip_ch_text = self._ws([ch_text])[0]
-        for i in range(1, len(ckip_ch_text)+1):
-            curr_ch_text = "".join(ckip_ch_text[:i])
+        jieba_ch_text = jieba.lcut(ch_text)
+        for i in range(1, len(jieba_ch_text)+1):
+            curr_ch_text = "".join(jieba_ch_text[:i])
             candidate_en_text = self._trans_from_ch_to_en(curr_ch_text)
             candidate_en_embedding = self._sbert_model.encode(candidate_en_text)[0]
             sim = self._cal_cosine_sim(en_embedding, candidate_en_embedding)[0]
@@ -176,9 +177,9 @@ class OtherIntentHandler:
     def _get_ch_ans_from_en_text_from_end(self, ch_text, en_text):
         en_embedding = self._sbert_model.encode(en_text)
         candidate, candidate_sim = None, -1
-        ckip_ch_text = self._ws([ch_text])[0]
-        for i in range(len(ckip_ch_text)):
-            curr_ch_text = "".join(ckip_ch_text[i:])
+        jieba_ch_text = jieba.lcut(ch_text)
+        for i in range(len(jieba_ch_text)):
+            curr_ch_text = "".join(jieba_ch_text[i:])
             candidate_en_text = self._trans_from_ch_to_en(curr_ch_text)
             candidate_en_embedding = self._sbert_model.encode(candidate_en_text)[0]
             sim = self._cal_cosine_sim(en_embedding, candidate_en_embedding)[0]
