@@ -11,14 +11,14 @@ class FAQJudge:
         self._df = pd.read_csv("./csv_files/faq_data.csv")
         # faqs_dict is Question-Answer's pair
         self._faqs_dict = dict()
-        for k, v in zip(df["問題"], df["答案"]):
+        for k, v in zip(self._df["問題"], self._df["答案"]):
             self._faqs_dict[k] = v
-        self._faqs = list(faqs_dict.keys())
-        self._faq_embeddings = self._model.encode(faqs)
+        self._faqs = list(self._faqs_dict.keys())
+        self._faq_embeddings = self._model.encode(self._faqs)
     
     # (Public function) This is the API for FAQ Judgement
     def get_faq_judge(self, sentence: str):
-        sentence_embedding = self._model.encode(sentence)[0]
+        sentence_embedding = self._model.encode(sentence)
         candidate, candidate_sim = None, -1
         for faq, faq_embedding in zip(self._faqs, self._faq_embeddings):
             sim = self._cal_cosine_sim(sentence_embedding, faq_embedding)

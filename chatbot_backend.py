@@ -20,7 +20,7 @@ BOOK_MODEL = BertForTokenClassification.from_pretrained("./models/book_model/")
 TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 
 INTENT_CLASSIFIER = IntentClassifier()  # Intent Classifier
-FAQ_JUDGE = FAQ_JUDGE()  # FAQ Judge
+FAQ_JUDGE = FAQJudge()  # FAQ Judge
 
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
@@ -52,7 +52,9 @@ def _get_book_name(sentence: str):
             target.append(tokens[i])
         elif label == "I-BOOK":
             target.append(tokens[i])
-    return targets[0]
+    if target:
+        targets.append("".join(target))
+    return ", ".join(targets) if targets else "找不到書名"
 
             
 @app.route("/api/v1/", methods=["POST"])
