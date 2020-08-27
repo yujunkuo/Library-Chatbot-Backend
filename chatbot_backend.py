@@ -11,6 +11,7 @@ from transformers import BertTokenizer
 
 from intent_classifier import IntentClassifier
 from faq_judge import FAQJudge
+from other_intent import OtherIntentHandler
 
 
 app = Flask(__name__)
@@ -19,8 +20,10 @@ app = Flask(__name__)
 BOOK_MODEL = BertForTokenClassification.from_pretrained("./models/book_model/")
 TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 
+# Global Variables (Handlers)
 INTENT_CLASSIFIER = IntentClassifier()  # Intent Classifier
 FAQ_JUDGE = FAQJudge()  # FAQ Judge
+OTHER_INTENT_HANDLER = OtherIntentHandler() # Other Intent Handler
 
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
@@ -32,7 +35,7 @@ def get_answer(sentence: str):
     elif intent_res == "borrow_place":
         return "借場地嗎?"
     else:
-        return "其他問題嗎?"
+        return OTHER_INTENT_HANDLER.get_answer()
 
 def _get_book_name(sentence: str):
     book_tag_values = ["I-BOOK", "O", "B-BOOK", "PAD"]

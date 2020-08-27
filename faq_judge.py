@@ -1,4 +1,4 @@
-## FAQ Judgement class
+## FAQ Judge class
 
 import numpy as np
 import pandas as pd
@@ -31,7 +31,7 @@ class FAQJudge:
             answer = self._faqs_dict[candidate]
             return answer
 
-    # (Protected function) Which is used to calculate cosine similarity
+    # (Protected function) Calculate Cosine Similarity between to sentences
     def _cal_cosine_sim(self, x, y):
         res = np.dot(x, y) / (np.linalg.norm(x)*np.linalg.norm(y))
         return res
