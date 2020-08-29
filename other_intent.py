@@ -24,7 +24,7 @@ class OtherIntentHandler:
     # (Public function) The API which is used to get the answer of other question
     def get_answer(self, sentence: str):
         for corpus in self._corpuses:
-            answer = _handle_other_question(sentence, corpus)
+            answer = self._handle_other_question(sentence, corpus)
             if answer:
                 return answer
         return "找不到答案"

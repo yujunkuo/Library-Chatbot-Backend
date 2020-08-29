@@ -35,7 +35,7 @@ def get_answer(sentence: str):
     elif intent_res == "borrow_place":
         return "借場地嗎?"
     else:
-        return OTHER_INTENT_HANDLER.get_answer()
+        return OTHER_INTENT_HANDLER.get_answer(sentence)
 
 def _get_book_name(sentence: str):
     book_tag_values = ["I-BOOK", "O", "B-BOOK", "PAD"]
