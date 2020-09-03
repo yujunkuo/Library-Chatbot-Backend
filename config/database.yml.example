@@ -1,0 +1,6 @@
+# MySQL config file
+development:
+    host: localhost
+    database: some_db
+    username: username
+    password: password

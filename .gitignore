@@ -21,3 +21,6 @@ __pycache__/
 # ignore some flask file
 instance/
 .webassets-cache
+
+# ignore config file
+config/*.yml
