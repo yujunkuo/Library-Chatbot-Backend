@@ -1,10 +1,12 @@
 import time
 import torch
+import yaml
 import numpy as np
 
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask_mysqldb import MySQL
 
 from transformers import BertForTokenClassification
 from transformers import BertTokenizer
@@ -14,16 +16,46 @@ from faq_judge import FAQJudge
 from other_intent import OtherIntentHandler
 
 
+# Construct App
 app = Flask(__name__)
+
+
+# Read MySQL Config
+with open("./config/database.yml", 'r') as stream:
+    try:
+        mysql_config = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+
+
+# Set MySQL Config
+app.config["MYSQL_HOST"] = mysql_config["host"]
+app.config["MYSQL_USER"] = mysql_config["username"]
+app.config["MYSQL_PASSWORD"] = mysql_config["password"]
+app.config["MYSQL_DB"] = mysql_config["database"]
+
+
+# Construct MySQL Object
+mysql = MySQL(app)
+
+
+# Read Server Config
+with open("./config/server.yml", 'r') as stream:
+    try:
+        server_config = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
 
 
 BOOK_MODEL = BertForTokenClassification.from_pretrained("./models/book_model/")
 TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 
+
 # Global Variables (Handlers)
 INTENT_CLASSIFIER = IntentClassifier()  # Intent Classifier
 FAQ_JUDGE = FAQJudge()  # FAQ Judge
 OTHER_INTENT_HANDLER = OtherIntentHandler() # Other Intent Handler
+
 
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
@@ -31,11 +63,15 @@ def get_answer(sentence: str):
         return faq_res
     intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
     if intent_res == "search_book":
-        return _get_book_name(sentence)
+        book_name = _get_book_name(sentence)
+        book_info = _get_all_book_info(book_name)
+        return book_info
     elif intent_res == "borrow_place":
         return "借場地嗎?"
     else:
-        return OTHER_INTENT_HANDLER.get_answer(sentence)
+        # return OTHER_INTENT_HANDLER.get_answer(sentence)
+        return "歡迎來到傳說對決，敵軍還有五秒到達戰場，請做好準備"
+
 
 def _get_book_name(sentence: str):
     book_tag_values = ["I-BOOK", "O", "B-BOOK", "PAD"]
@@ -59,6 +95,14 @@ def _get_book_name(sentence: str):
         targets.append("".join(target))
     return ", ".join(targets) if targets else "找不到書名"
 
+def _get_all_book_info(book_name: str):
+    cur = mysql.connection.cursor()
+    sql_command = "SELECT Title(Normalized), Author FROM p9 WHERE Title(Normalized)=%%s%;"
+    cur.execute(sql_command, book_name)
+    fetch_data = cur.fetchall()
+    cur.close()
+    return fetch_data
+
             
 @app.route("/api/v1/", methods=["POST"])
 def home():
@@ -71,8 +115,9 @@ def home():
     return_dict = {"answer": answer, "handle_time": handle_time}
     return jsonify(return_dict)
 
+
 def main():
-    app.run(debug=True, host="140.119.19.18")
+    app.run(debug=True, host=server_config["ip"])
 
 
 if __name__ == "__main__":
