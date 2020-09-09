@@ -60,17 +60,17 @@ OTHER_INTENT_HANDLER = OtherIntentHandler() # Other Intent Handler
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
     if faq_res: 
-        return {"intent": "faq", "answer": faq_res}
+        return {"class": "answer", "answer": faq_res}
     intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
     if intent_res == "search_book":
         book_name = _get_book_name(sentence)
         book_info = _get_all_book_info(book_name)
-        return {"intent": "book", "book_name": book_name, "book_info": book_info}
+        return {"class": "book_list", "book_name": book_name, "book_list": book_info}
     elif intent_res == "borrow_place":
-        return {"intent": "place", "answer": "借場地捏"}
+        return {"class": "answer", "answer": "借場地捏"}
     else:
         # return OTHER_INTENT_HANDLER.get_answer(sentence)
-        return {"intent": "other", "answer": "其他捏"}
+        return {"class": "answer", "answer": "其他捏"}
 
 
 def _get_book_name(sentence: str):
