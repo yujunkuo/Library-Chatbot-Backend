@@ -60,17 +60,17 @@ OTHER_INTENT_HANDLER = OtherIntentHandler() # Other Intent Handler
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
     if faq_res: 
-        return faq_res
+        return {"intent": "faq", "answer": faq_res}
     intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
     if intent_res == "search_book":
         book_name = _get_book_name(sentence)
         book_info = _get_all_book_info(book_name)
-        return book_info
+        return {"intent": "book", "book_name": book_name, "book_info": book_info}
     elif intent_res == "borrow_place":
-        return "借場地嗎?"
+        return {"intent": "place", "answer": "借場地捏"}
     else:
         # return OTHER_INTENT_HANDLER.get_answer(sentence)
-        return "歡迎來到傳說對決，敵軍還有五秒到達戰場，請做好準備"
+        return {"intent": "other", "answer": "其他捏"}
 
 
 def _get_book_name(sentence: str):
@@ -97,8 +97,9 @@ def _get_book_name(sentence: str):
 
 def _get_all_book_info(book_name: str):
     cur = mysql.connection.cursor()
-    sql_command = "SELECT Title(Normalized), Author FROM p9 WHERE Title(Normalized)=%%s%;"
-    cur.execute(sql_command, book_name)
+    sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s;"
+    book_name = "%" + book_name + "%"
+    cur.execute(sql_command, (book_name, ))
     fetch_data = cur.fetchall()
     cur.close()
     return fetch_data
@@ -108,12 +109,16 @@ def _get_all_book_info(book_name: str):
 def home():
     data = request.get_json()
     sentence = data["question"]
+    id = data["id"]
     start_time = time.time()
-    answer = get_answer(sentence)
+    return_dict = get_answer(sentence)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
-    return_dict = {"answer": answer, "handle_time": handle_time}
+    return_dict["handle_time"] = handle_time
+    return_dict["id"] = id
     return jsonify(return_dict)
+
+# 書名\作者\圖書館位置\有沒有在館藏
 
 
 def main():
