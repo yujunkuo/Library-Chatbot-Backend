@@ -94,7 +94,7 @@ def book_list_api():
     return jsonify(return_dict)
 
 # Get Book Information API
-@app.route("/api/v1/book/", method=["POST"])
+@app.route("/api/v1/book/", methods=["POST"])
 def book_api():
     data = request.get_json()
     mms_id = data["mms_id"]
