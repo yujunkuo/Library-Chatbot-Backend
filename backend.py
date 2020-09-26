@@ -6,10 +6,10 @@ from flask import request
 from flask import jsonify
 from flask_mysqldb import MySQL
 
-from intent_classifier import IntentClassifier
-from faq_judge import FAQJudge
-from other_intent import OtherIntentHandler
-from book_intent import get_book_result
+import book_intent
+import other_intent
+import faq_judge
+import intent_classifier
 
 
 ######### Construct App and Server Config #########
@@ -45,9 +45,9 @@ mysql = MySQL(app)
 
 
 # Global Variables (Handlers)
-INTENT_CLASSIFIER = IntentClassifier()  # Intent Classifier
-FAQ_JUDGE = FAQJudge()  # FAQ Judge
-OTHER_INTENT_HANDLER = OtherIntentHandler() # Other Intent Handler
+INTENT_CLASSIFIER = intent_classifier.IntentClassifier()  # Intent Classifier
+FAQ_JUDGE = faq_judge.FAQJudge()  # FAQ Judge
+OTHER_INTENT_HANDLER = other_intent.OtherIntentHandler()  # Other Intent Handler
 
 
 def get_answer(sentence: str):
@@ -56,29 +56,56 @@ def get_answer(sentence: str):
         return {"class": "answer", "answer": faq_res}
     intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
     if intent_res == "search_book":
-        return get_book_result(sentence, mysql)
+        return book_intent.get_book_list(sentence, mysql)
     elif intent_res == "borrow_place":
         return {"class": "answer", "answer": "借場地捏"}
     else:
         # return OTHER_INTENT_HANDLER.get_answer(sentence)
         return {"class": "answer", "answer": "其他捏"}
 
-            
-@app.route("/api/v1/", methods=["POST"])
-def home():
+
+# Other Question API          
+@app.route("/api/v1/other/", methods=["POST"])
+def other_api():
     data = request.get_json()
     sentence = data["question"]
-    id = data["id"]
+    session_id = data["session_id"]
     start_time = time.time()
     return_dict = get_answer(sentence)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
     return_dict["handle_time"] = handle_time
-    return_dict["id"] = id
+    return_dict["session_id"] = session_id
     return jsonify(return_dict)
 
-# 書名\作者\圖書館位置\有沒有在館藏
 
+# Search Book API
+@app.route("/api/v1/book_list/", methods=["POST"])
+def book_list_api():
+    data = request.get_json()
+    sentence = data["question"]
+    session_id = data["session_id"]
+    start_time = time.time()
+    return_dict = book_intent.get_book_list(sentence, mysql)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
+# Get Book Information API
+@app.route("/api/v1/book/", method=["POST"])
+def book_api():
+    data = request.get_json()
+    mms_id = data["mms_id"]
+    session_id = data["session_id"]
+    start_time = time.time()
+    return_dict = book_intent.get_book_info(mms_id)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
 
 ################## Main Function ##################
 def main():
