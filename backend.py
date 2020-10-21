@@ -109,8 +109,7 @@ def book_api():
 
 ################## Main Function ##################
 def main():
-    app.run(debug=True, host=server_config["ip"])
-
+    app.run(debug=True, host=server_config["ip"], port=5000)
 
 if __name__ == "__main__":
     main()
