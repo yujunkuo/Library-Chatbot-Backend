@@ -18,7 +18,7 @@ TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 def get_book_list(sentence: str, mysql):
     books, authors = _get_book_and_author(sentence)
     book_info = _get_all_book_info(books, authors, mysql)
-    return {"class": "book_list", "book_name": book_name, "book_list": book_info}
+    return {"class": "book_list", "book_name": books[0], "book_list": book_info}
 
 
 # (Protected function) Get book name and author name
@@ -59,17 +59,63 @@ def _get_book_and_author(sentence: str):
 # (Protected function) Get book list information
 def _get_all_book_info(books: list, authors: list, mysql):
     cur = mysql.connection.cursor()
+    # Only choose the first book and author in the list
     book_name = books[0] if books else None
     author_name = authors[0] if authors else None
+    # SQL Statement with book name and author
     if book_name and author_name:
-        # TODO 1022 -- Determine appropriate SQL command with different status
-        # TODO 1022 -- Retrieve new version of Entity Recognition Model to the server
-        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s;"
+        # First, filter totally identical book name and author
+        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT 20;"
+        book_name = "%" + book_name + "%"
+        author_name = "%" + author_name + "%"
+        cur.execute(sql_command, (book_name, author_name))
+        fetch_data = cur.fetchall()
+        cur.close()
+        # Then, filter partially identical
+        if len(fetch_data) < 20:
+            times = 20 - len(fetch_data)
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT %i;"
+            book_name = "%" + "%".join([word for word in book_name]) + "%"
+            author_name = "%" + "%".join([word for word in author_name]) + "%"
+            cur.execute(sql_command, (book_name, author_name, times))
+            fetch_data += cur.fetchall()
+            cur.close()
+        return fetch_data
+    elif book_name:
+        # First, filter totally identical book name
+        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT 20;"
         book_name = "%" + book_name + "%"
         cur.execute(sql_command, (book_name, ))
         fetch_data = cur.fetchall()
         cur.close()
-    return fetch_data
+        # Then, filter partially identical
+        if len(fetch_data) < 20:
+            times = 20 - len(fetch_data)
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT %i;"
+            book_name = "%" + "%".join([word for word in book_name]) + "%"
+            cur.execute(sql_command, (book_name, times))
+            fetch_data = cur.fetchall()
+            cur.close()
+        return fetch_data
+    elif author_name:
+        # First, filter totally identical author
+        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT 20;"
+        author_name = "%" + author_name + "%"
+        cur.execute(sql_command, (author_name, ))
+        fetch_data = cur.fetchall()
+        cur.close()
+        # Then, filter partially identical
+        if len(fetch_data) < 20:
+            times = 20 - len(fetch_data)
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT %i;"
+            author_name = "%" + "%".join([word for word in author_name]) + "%"
+            cur.execute(sql_command, (author_name, times))
+            fetch_data = cur.fetchall()
+            cur.close()
+        return fetch_data
+    else:
+        # Return empty list if no book name or author data is given
+        return []
 
 
 # Public API to get book info
