@@ -23,7 +23,7 @@ def get_book_list(sentence: str, mysql):
 
 # (Protected function) Get book name and author name
 def _get_book_and_author(sentence: str):
-    book_tag_values = ["I-BOOK", "O", "B-BOOK", "PAD"]
+    book_tag_values = ["B-BOOK", "I-AUTHOR", "O", "I-BOOK", "B-AUTHOR", "PAD"]
     tokenized_sentence = TOKENIZER.encode(sentence)
     input_ids = torch.tensor([tokenized_sentence])
     with torch.no_grad():
