@@ -100,7 +100,7 @@ def book_api():
     mms_id = data["mms_id"]
     session_id = data["session_id"]
     start_time = time.time()
-    return_dict = book_intent.get_book_info(mms_id)
+    return_dict = book_intent.get_book_info(mms_id, mysql)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
     return_dict["handle_time"] = handle_time

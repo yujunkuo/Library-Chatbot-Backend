@@ -18,7 +18,7 @@ TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 def get_book_list(sentence: str, mysql):
     books, authors = _get_book_and_author(sentence)
     book_info = _get_all_book_info(books, authors, mysql)
-    return {"class": "book_list", "book_name": books[0], "book_list": book_info}
+    return {"class": "book_list", "book_name": books[0] if books else "", "book_list": book_info}
 
 
 # (Protected function) Get book name and author name
@@ -70,16 +70,15 @@ def _get_all_book_info(books: list, authors: list, mysql):
         author_name = "%" + author_name + "%"
         cur.execute(sql_command, (book_name, author_name))
         fetch_data = cur.fetchall()
-        cur.close()
         # Then, filter partially identical
-        if len(fetch_data) < 20:
-            times = 20 - len(fetch_data)
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT %i;"
-            book_name = "%" + "%".join([word for word in book_name]) + "%"
-            author_name = "%" + "%".join([word for word in author_name]) + "%"
+        if len(list(fetch_data)) < 20:
+            times = int(20-len(list(fetch_data)))
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT %s;"
+            book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
+            author_name = "%" + "%".join([word for word in author_name[1:-1]]) + "%"
             cur.execute(sql_command, (book_name, author_name, times))
             fetch_data += cur.fetchall()
-            cur.close()
+        cur.close()
         return fetch_data
     elif book_name:
         # First, filter totally identical book name
@@ -87,15 +86,14 @@ def _get_all_book_info(books: list, authors: list, mysql):
         book_name = "%" + book_name + "%"
         cur.execute(sql_command, (book_name, ))
         fetch_data = cur.fetchall()
-        cur.close()
         # Then, filter partially identical
-        if len(fetch_data) < 20:
-            times = 20 - len(fetch_data)
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT %i;"
-            book_name = "%" + "%".join([word for word in book_name]) + "%"
+        if len(list(fetch_data)) < 20:
+            times = int(20-len(list(fetch_data)))
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT %s;"
+            book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
             cur.execute(sql_command, (book_name, times))
             fetch_data = cur.fetchall()
-            cur.close()
+        cur.close()
         return fetch_data
     elif author_name:
         # First, filter totally identical author
@@ -103,24 +101,24 @@ def _get_all_book_info(books: list, authors: list, mysql):
         author_name = "%" + author_name + "%"
         cur.execute(sql_command, (author_name, ))
         fetch_data = cur.fetchall()
-        cur.close()
         # Then, filter partially identical
-        if len(fetch_data) < 20:
-            times = 20 - len(fetch_data)
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT %i;"
-            author_name = "%" + "%".join([word for word in author_name]) + "%"
+        if len(list(fetch_data)) < 20:
+            times = int(20-len(list(fetch_data)))
+            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT %s;"
+            author_name = "%" + "%".join([word for word in author_name[1:-1]]) + "%"
             cur.execute(sql_command, (author_name, times))
             fetch_data = cur.fetchall()
-            cur.close()
+        cur.close()
         return fetch_data
     else:
         # Return empty list if no book name or author data is given
+        cur.close()
         return []
 
 
 # Public API to get book info
-def get_book_info(mms_id: int):
-    # Send Request
+def get_book_info(mms_id: int, mysql):
+    # Send Request with crawler
     url = f"https://nccu.primo.exlibrisgroup.com/primaws/rest/pub/pnxs/L/alma{mms_id}?vid=886NCCU_INST:886NCCU_INST&lang=zh-tw"
     r = rq.get(url).text
     data = json.loads(r)
@@ -137,4 +135,17 @@ def get_book_info(mms_id: int):
         location = holding_list[i]["subLocation"]
         available = holding_list[i]["availabilityStatus"]
         location_and_available.append([location, available])
-    return{"book_name": clean_book_name, "author": clean_author, "location_and_available": location_and_available}
+    # Get iibased recommendation from database
+    cur = mysql.connection.cursor()
+    sql_command = "SELECT `ii_top30` FROM mms_info WHERE mmsid = %s;"
+    cur.execute(sql_command, (mms_id, ))
+    recommendation_mms_id = cur.fetchall()[0]
+    recommendation_list = []
+    for curr_mms_id in json.loads(recommendation_mms_id):
+        sql_command = "SELECT `title` FROM mms_info WHERE mmsid = %s;"
+        cur.execute(sql_command, (curr_mms_id, ))
+        curr_book_name = cur.fetchall()[0]
+        recommendation_list.append((curr_book_name, curr_mms_id))
+    cur.close()
+    return {"book_name": clean_book_name, "author": clean_author,
+           "location_and_available": location_and_available, "recommendation": recommendation_list}
