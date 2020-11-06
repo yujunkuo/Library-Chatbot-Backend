@@ -139,13 +139,16 @@ def get_book_info(mms_id: int, mysql):
     cur = mysql.connection.cursor()
     sql_command = "SELECT `ii_top30` FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
-    recommendation_mms_id = cur.fetchall()[0]
+    recommendation_mms_id = cur.fetchall()[0][0]
     recommendation_list = []
-    for curr_mms_id in json.loads(recommendation_mms_id):
+    for curr_mms_id in json.loads(recommendation_mms_id)[:10]:
+        print("current mms id: ", curr_mms_id)
         sql_command = "SELECT `title` FROM mms_info WHERE mmsid = %s;"
         cur.execute(sql_command, (curr_mms_id, ))
-        curr_book_name = cur.fetchall()[0]
-        recommendation_list.append((curr_book_name, curr_mms_id))
+        curr_book_name_list = cur.fetchall()
+        curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
+        recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
+        recommendation_res = "@@".join(recommendation_list)
     cur.close()
     return {"book_name": clean_book_name, "author": clean_author,
-           "location_and_available": location_and_available, "recommendation": recommendation_list}
+           "location_and_available": location_and_available, "recommendation": recommendation_res}
