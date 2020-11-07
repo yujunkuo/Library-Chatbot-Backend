@@ -65,7 +65,7 @@ def _get_all_book_info(books: list, authors: list, mysql):
     # SQL Statement with book name and author
     if book_name and author_name:
         # First, filter totally identical book name and author
-        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT 20;"
+        sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s AND author LIKE %s LIMIT 20;"
         book_name = "%" + book_name + "%"
         author_name = "%" + author_name + "%"
         cur.execute(sql_command, (book_name, author_name))
@@ -73,7 +73,7 @@ def _get_all_book_info(books: list, authors: list, mysql):
         # Then, filter partially identical
         if len(list(fetch_data)) < 20:
             times = int(20-len(list(fetch_data)))
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s AND Author LIKE %s LIMIT %s;"
+            sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s AND author LIKE %s LIMIT %s;"
             book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
             author_name = "%" + "%".join([word for word in author_name[1:-1]]) + "%"
             cur.execute(sql_command, (book_name, author_name, times))
@@ -82,14 +82,14 @@ def _get_all_book_info(books: list, authors: list, mysql):
         return fetch_data
     elif book_name:
         # First, filter totally identical book name
-        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT 20;"
+        sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s LIMIT 20;"
         book_name = "%" + book_name + "%"
         cur.execute(sql_command, (book_name, ))
         fetch_data = cur.fetchall()
         # Then, filter partially identical
         if len(list(fetch_data)) < 20:
             times = int(20-len(list(fetch_data)))
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE `Title (Complete)` LIKE %s LIMIT %s;"
+            sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s LIMIT %s;"
             book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
             cur.execute(sql_command, (book_name, times))
             fetch_data = cur.fetchall()
@@ -97,14 +97,14 @@ def _get_all_book_info(books: list, authors: list, mysql):
         return fetch_data
     elif author_name:
         # First, filter totally identical author
-        sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT 20;"
+        sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE author LIKE %s LIMIT 20;"
         author_name = "%" + author_name + "%"
         cur.execute(sql_command, (author_name, ))
         fetch_data = cur.fetchall()
         # Then, filter partially identical
         if len(list(fetch_data)) < 20:
             times = int(20-len(list(fetch_data)))
-            sql_command = "SELECT DISTINCT `Title (Complete)`, Author, `MMS Id` FROM p9 WHERE Author LIKE %s LIMIT %s;"
+            sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE author LIKE %s LIMIT %s;"
             author_name = "%" + "%".join([word for word in author_name[1:-1]]) + "%"
             cur.execute(sql_command, (author_name, times))
             fetch_data = cur.fetchall()
@@ -135,15 +135,15 @@ def get_book_info(mms_id: int, mysql):
         location = holding_list[i]["subLocation"]
         available = holding_list[i]["availabilityStatus"]
         location_and_available.append([location, available])
-    # Get iibased recommendation from database
+    # Get item-based recommendation from database
     cur = mysql.connection.cursor()
-    sql_command = "SELECT `ii_top30` FROM mms_info WHERE mmsid = %s;"
+    sql_command = "SELECT mms_top_30 FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
     recommendation_mms_id = cur.fetchall()[0][0]
     recommendation_list = []
     for curr_mms_id in json.loads(recommendation_mms_id)[:10]:
-        print("current mms id: ", curr_mms_id)
-        sql_command = "SELECT `title` FROM mms_info WHERE mmsid = %s;"
+        # print("current mms id: ", curr_mms_id)
+        sql_command = "SELECT title FROM mms_info WHERE mmsid = %s;"
         cur.execute(sql_command, (curr_mms_id, ))
         curr_book_name_list = cur.fetchall()
         curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
