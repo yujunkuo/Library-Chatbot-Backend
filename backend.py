@@ -1,4 +1,5 @@
 import time
+import datetime
 import yaml
 
 from flask import Flask
@@ -10,6 +11,7 @@ import book_intent
 import other_intent
 import faq_judge
 import intent_classifier
+import calendar
 
 
 ######### Construct App and Server Config #########
@@ -106,6 +108,25 @@ def book_api():
     return_dict["handle_time"] = handle_time
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
+
+# Get Google Calendar API
+@app.route("/api/v1/calendar/", methods=["POST"])
+def calendar_api():
+    data = request.get_json()
+    session_id = data["session_id"]
+    start_time = time.time()
+    first_week_calendar = calendar.get_current_week_calendar()
+    second_week_calendar = calendar.get_current_week_calendar(7)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict = dict()
+    return_dict["first_week_calendar"] = first_week_calendar
+    return_dict["second_week_calendar"] = second_week_calendar
+    return_dict["current_date"] = str(datetime.date.today())
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
 
 ################## Main Function ##################
 def main():
