@@ -149,6 +149,14 @@ def get_book_info(mms_id: int, mysql):
         curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
         recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
         recommendation_res = "@@".join(recommendation_list)
+    # Get Book Introduction, Cover and HashTag
+    sql_command = "SELECT content, cover, hashtag FROM mms_info WHERE mmsid = %s;"
+    cur.execute(sql_command, (mms_id, ))
+    sql_result = cur.fetchall()
+    book_content, book_cover, book_hashtag = sql_result[0]
     cur.close()
-    return {"book_name": clean_book_name, "author": clean_author,
-           "location_and_available": location_and_available, "recommendation": recommendation_res}
+    # Parse html introduction to clean text introduction
+    soup = BeautifulSoup(book_content)
+    clean_introduction = "".join(soup.findAll(text=True)).replace(u"\u3000", "").replace("\n", "")
+    return {"book_name": clean_book_name, "author": clean_author, "introduction": clean_introduction, "cover": book_cover,
+           "hashtag": book_hashtag ,"location_and_available": location_and_available, "recommendation": recommendation_res}
