@@ -9,6 +9,7 @@ from flask_mysqldb import MySQL
 
 import book_intent
 import other_intent
+import faci_intent
 import faq_judge
 import intent_classifier
 import calendar_crawler
@@ -126,6 +127,21 @@ def calendar_api():
     return_dict["handle_time"] = handle_time
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
+
+# Get Facility API
+@app.route("/api/v1/facility/", methods=["POST"])
+def faci_api():
+    data = request.get_json()
+    sentence = data["question"]
+    session_id = data["session_id"]
+    start_time = time.time()
+    return_dict = faci_intent.get_faci_info(sentence)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
 
 
 ################## Main Function ##################
