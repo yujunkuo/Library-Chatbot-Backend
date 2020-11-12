@@ -115,9 +115,10 @@ def book_api():
 def calendar_api():
     data = request.get_json()
     session_id = data["session_id"]
+    day = data["day"]
     start_time = time.time()
-    first_week_calendar = calendar_crawler.get_current_week_calendar()
-    second_week_calendar = calendar_crawler.get_current_week_calendar(7)
+    first_week_calendar = calendar_crawler.get_current_week_calendar(int(day))
+    second_week_calendar = calendar_crawler.get_current_week_calendar(int(day)+7)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
     return_dict = dict()

@@ -20,6 +20,7 @@ TOKENIZER = BertTokenizer.from_pretrained("bert-base-chinese")
 def get_faci_info(sentence: str):
     facis = _get_faci_name(sentence)
     faci_info = _get_faci_info(facis)
+    faci_info["class"] = "facility"
     return faci_info
 
 
@@ -29,7 +30,7 @@ def _get_faci_name(sentence: str):
     tokenized_sentence = TOKENIZER.encode(sentence)
     input_ids = torch.tensor([tokenized_sentence])
     with torch.no_grad():
-        output = BOOK_MODEL(input_ids)
+        output = FACI_MODEL(input_ids)
     label_indices = np.argmax(output[0].to('cpu').numpy(), axis=2)
     tokens = TOKENIZER.convert_ids_to_tokens(input_ids.to('cpu').numpy()[0])
     faci, facis = [], []
@@ -53,5 +54,5 @@ def _get_faci_info(facis):
     df = pd.read_csv("./csv_files/faci.csv")
     for idx, val in df.iterrows():
         if (faci in val.entity) or (val.entity in faci):
-            return {"faci_name": faci, "introduction": val["introduction"], "floor": val["floor"], "number": val["number"], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"]}
-    return {"faci_name": "", "introduction": "", "floor": "", "number": "", "classify": ""}
+            return {"faci_name": faci, "introduce": val["introduce"], "floor": val["floor"], "number": val["number"], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"]}
+    return {"faci_name": "", "introduce": "", "floor": "", "number": "", "classify": ""}

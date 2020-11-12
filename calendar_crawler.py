@@ -74,19 +74,14 @@ def get_current_week_calendar(input_day: int = 0):
                 else:
                     item_content = event.select(".item-content")[0]
                     if "event-singleday" in item_content.get("class"):
-                        event_time = item_content.select(
-                            ".event-time")[0].contents[0]
-                        event_content = item_content.select(
-                            ".event-summary")[0].contents[0]
+                        event_time = item_content.select(".event-time")[0].contents[0]
+                        event_content = item_content.select(".event-summary")[0].contents[0]
                     else:
                         event_time = f"{event_duration} days"
-                        event_content = item_content.select(
-                            ".event-summary")[0].contents[0]
+                        event_content = item_content.select(".event-summary")[0].contents[0]
                     if event_content.find("[") != -1 and event_content.find("]") != -1:
-                        category = event_content[event_content.find(
-                            "[")+1:event_content.find("]")]
-                        event_content = event_content[event_content.find(
-                            "]")+1:]
+                        category = event_content[event_content.find("[")+1:event_content.find("]")]
+                        event_content = event_content[event_content.find("]")+1:]
                     else:
                         category = ""
                     # 尋找插入點
@@ -102,12 +97,16 @@ def get_current_week_calendar(input_day: int = 0):
                         # print(f"Current Skip set: {skip_set}")
                         # print(f"Current Insert Index: {insert_index}")
                         # print(f"Insert {event_content} in  Index {insert_index+j}, Loop {j}-th")
-                        result[insert_index +
-                               j].append([event_time, category, event_content])
+                        result[insert_index+j].append([event_time, category, event_content])
                 if event.get("colspan"):
                     duration = duration + event_duration - 1
             for each in local_skip_set:
                 skip_set.add(each)
     # 回傳結果
-    result.insert(0, week_list)
+    curr_day_index = week_list.index(curr_date.day)
+    week_list_with_date = [(curr_date + datetime.timedelta(days=i-curr_day_index)).strftime('%Y-%m-%d') for i in range(7)]
+    for i in range(len(result)):
+        for j in range(len(result[i])):
+            result[i][j].insert(0, week_list_with_date[i])
+    result.insert(0, week_list_with_date)
     return result
