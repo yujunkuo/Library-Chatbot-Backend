@@ -150,13 +150,13 @@ def get_book_info(mms_id: int, mysql):
         recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
         recommendation_res = "@@".join(recommendation_list)
     # Get Book Introduction, Cover and HashTag
-    sql_command = "SELECT content, cover, hashtag FROM mms_info WHERE mmsid = %s;"
+    sql_command = "SELECT content, cover, hashtag, rating FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
     sql_result = cur.fetchall()
-    book_content, book_cover, book_hashtag = sql_result[0]
+    book_content, book_cover, book_hashtag, book_rating = sql_result[0]
     cur.close()
     # Parse html introduction to clean text introduction
     soup = BeautifulSoup(book_content)
     clean_introduction = "".join(soup.findAll(text=True)).replace(u"\u3000", "").replace("\n", "")
     return {"book_name": clean_book_name, "author": clean_author, "introduction": clean_introduction, "cover": book_cover,
-           "hashtag": book_hashtag ,"location_and_available": location_and_available, "recommendation": recommendation_res}
+           "hashtag": book_hashtag, "rating": book_rating, "location_and_available": location_and_available, "recommendation": recommendation_res}

@@ -54,5 +54,5 @@ def _get_faci_info(facis):
     df = pd.read_csv("./csv_files/faci.csv")
     for idx, val in df.iterrows():
         if (faci in val.entity) or (val.entity in faci):
-            return {"faci_name": faci, "introduce": val["introduce"], "floor": val["floor"], "number": val["number"], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"]}
+            return {"faci_name": val["entity"], "introduce": val["introduce"], "floor": val["floor"], "number": val["number"], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"]}
     return {"faci_name": "", "introduce": "", "floor": "", "number": "", "classify": ""}
