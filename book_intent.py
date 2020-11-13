@@ -139,16 +139,44 @@ def get_book_info(mms_id: str, mysql):
     cur = mysql.connection.cursor()
     sql_command = "SELECT mms_top_30 FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
-    recommendation_mms_id = cur.fetchall()[0][0]
-    recommendation_list = []
-    for curr_mms_id in json.loads(recommendation_mms_id)[:10]:
+    item_recommendation_mms_id = cur.fetchall()[0][0]
+    item_recommendation_list = []
+    for curr_mms_id in json.loads(item_recommendation_mms_id)[:10]:
         # print("current mms id: ", curr_mms_id)
         sql_command = "SELECT title FROM mms_info WHERE mmsid = %s;"
         cur.execute(sql_command, (curr_mms_id, ))
         curr_book_name_list = cur.fetchall()
         curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
-        recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
-        recommendation_res = "@@".join(recommendation_list)
+        item_recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
+    item_recommendation_res = "@@".join(item_recommendation_list)
+    # Get association-based recommendation from database
+    sql_command = """
+    SELECT item_info.mmsid AS mmsid
+    FROM loan_info
+    LEFT JOIN item_info
+    ON loan_info.iid=item_info.iid
+    where uid IN (
+    SELECT DISTINCT loan_info.uid
+    FROM loan_info
+    LEFT JOIN item_info
+    ON loan_info.iid=item_info.iid
+    where mmsid = %s)
+    AND item_info.mmsid != %s
+    GROUP BY mmsid
+    ORDER BY COUNT(mmsid) DESC
+    LIMIT 30;
+    """
+    cur.execute(sql_command, (mms_id, mms_id, ))
+    asso_recommendation_mms_id = cur.fetchall()
+    asso_recommendation_list = []
+    for curr_mms_id in asso_recommendation_mms_id:
+        curr_mms_id = curr_mms_id[0]
+        sql_command = "SELECT title FROM mms_info WHERE mmsid = %s;"
+        cur.execute(sql_command, (curr_mms_id, ))
+        curr_book_name_list = cur.fetchall()
+        curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
+        asso_recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
+    asso_recommendation_res = "@@".join(asso_recommendation_list)
     # Get Book Introduction, Cover and HashTag
     sql_command = "SELECT content, cover, hashtag, rating FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
@@ -156,7 +184,7 @@ def get_book_info(mms_id: str, mysql):
     book_content, book_cover, book_hashtag, book_rating = sql_result[0]
     cur.close()
     # Parsing Hashtag
-    book_hashtag_dict = json.loads(book_hashtag)
+    book_hashtag_dict = json.loads(book_hashtag) if book_hashtag else dict()
     book_hashtag_list = sorted(book_hashtag_dict.items(), key=lambda x: x[1], reverse=True)
     max_n = 5 if len(book_hashtag_list) > 5 else len(book_hashtag_list)
     max_n_hashtag_list = []
@@ -167,7 +195,8 @@ def get_book_info(mms_id: str, mysql):
     soup = BeautifulSoup(book_content)
     clean_introduction = "".join(soup.findAll(text=True)).replace(u"\u3000", "").replace("\n", "")
     return {"book_name": clean_book_name, "author": clean_author, "introduction": clean_introduction, "cover": book_cover,
-           "hashtag": book_hashtag, "rating": book_rating, "location_and_available": location_and_available, "recommendation": recommendation_res}
+           "hashtag": book_hashtag, "rating": book_rating, "location_and_available": location_and_available,
+           "item_recommendation": item_recommendation_res, "asso_recommendation": asso_recommendation_res}
 
 # Public API to get book info
 def upload_book_hashtag_and_rating(mms_id: str, hashtag: str, rating: str, mysql):
@@ -179,7 +208,7 @@ def upload_book_hashtag_and_rating(mms_id: str, hashtag: str, rating: str, mysql
     if hashtag in hashtag_dict:
         hashtag_dict[hashtag] += 1
     else:
-        hashtag_dict[hash_tag] = 1
+        hashtag_dict[hashtag] = 1
     cur.close()
     return 0
     ## TODO 1113
