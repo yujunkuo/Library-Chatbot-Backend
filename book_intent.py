@@ -117,7 +117,7 @@ def _get_all_book_info(books: list, authors: list, mysql):
 
 
 # Public API to get book info
-def get_book_info(mms_id: int, mysql):
+def get_book_info(mms_id: str, mysql):
     # Send Request with crawler
     url = f"https://nccu.primo.exlibrisgroup.com/primaws/rest/pub/pnxs/L/alma{mms_id}?vid=886NCCU_INST:886NCCU_INST&lang=zh-tw"
     r = rq.get(url).text
@@ -155,8 +155,31 @@ def get_book_info(mms_id: int, mysql):
     sql_result = cur.fetchall()
     book_content, book_cover, book_hashtag, book_rating = sql_result[0]
     cur.close()
+    # Parsing Hashtag
+    book_hashtag_dict = json.loads(book_hashtag)
+    book_hashtag_list = sorted(book_hashtag_dict.items(), key=lambda x: x[1], reverse=True)
+    max_n = 5 if len(book_hashtag_list) > 5 else len(book_hashtag_list)
+    max_n_hashtag_list = []
+    for k, v in book_hashtag_list[:max_n]:
+        max_n_hashtag_list.append(k)
+    book_hashtag = max_n_hashtag_list
     # Parse html introduction to clean text introduction
     soup = BeautifulSoup(book_content)
     clean_introduction = "".join(soup.findAll(text=True)).replace(u"\u3000", "").replace("\n", "")
     return {"book_name": clean_book_name, "author": clean_author, "introduction": clean_introduction, "cover": book_cover,
            "hashtag": book_hashtag, "rating": book_rating, "location_and_available": location_and_available, "recommendation": recommendation_res}
+
+# Public API to get book info
+def upload_book_hashtag_and_rating(mms_id: str, hashtag: str, rating: str, mysql):
+    cur = mysql.connection.cursor()
+    sql_command = "SELECT hashtag FROM mms_info WHERE mmsid = %s;"
+    cur.execute(sql_command, (mms_id, ))
+    hashtag_dict = cur.fetchall()[0][0]
+    hashtag_dict = json.loads(hashtag_dict)
+    if hashtag in hashtag_dict:
+        hashtag_dict[hashtag] += 1
+    else:
+        hashtag_dict[hash_tag] = 1
+    cur.close()
+    return 0
+    ## TODO 1113
