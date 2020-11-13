@@ -50,7 +50,7 @@ def _get_faci_name(sentence: str):
 
 # (Protected function) Get facility information
 def _get_faci_info(facis):
-    faci = facis[0] if facis else None
+    faci = facis[0] if facis else "無此場地"
     df = pd.read_csv("./csv_files/faci.csv")
     for idx, val in df.iterrows():
         if (faci in val.entity) or (val.entity in faci):
