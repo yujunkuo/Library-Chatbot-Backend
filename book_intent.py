@@ -123,11 +123,17 @@ def get_book_info(mms_id: str, mysql):
     r = rq.get(url).text
     data = json.loads(r)
     # Get Book Name
-    raw_book_name = data["pnx"]["display"]["title"][0]
-    clean_book_name = raw_book_name.split("/")[0].strip() if "/" in raw_book_name else raw_book_name.strip()
+    if "title" in data["pnx"]["display"] and data["pnx"]["display"]["title"]:
+        raw_book_name = data["pnx"]["display"]["title"][0]
+        clean_book_name = raw_book_name.split("/")[0].strip() if "/" in raw_book_name else raw_book_name.strip()
+    else:
+        clean_book_name = "找不到書名資訊"
     # Get Author
-    raw_author = data["pnx"]["display"]["creator"][0]
-    clean_author = raw_author.split("$$Q")[0].strip() if "$$Q" in raw_author else raw_author.strip()
+    if "creator" in data["pnx"]["display"] and data["pnx"]["display"]["creator"]:
+        raw_author = data["pnx"]["display"]["creator"][0]
+        clean_author = raw_author.split("$$Q")[0].strip() if "$$Q" in raw_author else raw_author.strip()
+    else:
+        clean_author = "找不到作者資訊"
     # Get Location and Avalibility
     holding_list = data["delivery"]["holding"]
     location_and_available = []
