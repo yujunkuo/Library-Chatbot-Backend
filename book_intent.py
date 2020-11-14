@@ -205,16 +205,30 @@ def get_book_info(mms_id: str, mysql):
            "item_recommendation": item_recommendation_res, "asso_recommendation": asso_recommendation_res}
 
 # Public API to get book info
-def upload_book_hashtag_and_rating(mms_id: str, hashtag: str, rating: str, mysql):
+def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: list, input_rating: str, mysql):
     cur = mysql.connection.cursor()
-    sql_command = "SELECT hashtag FROM mms_info WHERE mmsid = %s;"
+    sql_command = "SELECT hashtag, rating, rating_count FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
-    hashtag_dict = cur.fetchall()[0][0]
-    hashtag_dict = json.loads(hashtag_dict)
-    if hashtag in hashtag_dict:
-        hashtag_dict[hashtag] += 1
-    else:
-        hashtag_dict[hashtag] = 1
+    hashtag, rating, rating_count = cur.fetchall()[0]
     cur.close()
-    return 0
-    ## TODO 1113
+    # Handle Hashtag
+    hashtag_dict = json.loads(hashtag)
+    if input_hashtag:
+        for h in input_hashtag:
+            if h in hashtag_dict:
+                hashtag_dict[h] += 1
+            else:
+                hashtag_dict[h] = 1
+    # Handle rating
+    if input_rating:
+        input_rating = float(input_rating)
+        rating_count += 1
+        rating = (rating * rating_count + input_rating) / rating_count 
+    # Update Hashtag, rating and rating count
+    cur = mysql.connection.cursor()
+    sql_command = "UPDATE mms_info SET hashtag = %s, rating = %s, rating_count = %s WHERE mmsid = %s"
+    cur.execute(sql_command, (hashtag_dict, rating, rating_count, mms_id, ))
+    mysql.connection.commit()
+    cur.close()
+    # return TODO 1116
+    return 

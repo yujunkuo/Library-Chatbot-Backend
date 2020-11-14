@@ -110,6 +110,23 @@ def book_api():
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
 
+# Upload Book Hashtag and Rating API
+@app.route("/api/v1/book_upload/", methods=["POST"])
+def book_upload_api():
+    data = request.get_json()
+    mms_id = data["mms_id"]
+    session_id = data["session_id"]
+    input_hashtag = data["hashtag"]
+    input_rating = data["rating"]
+    start_time = time.time()
+    book_intent.upload_book_hashtag_and_rating(mms_id, input_hashtag, input_rating, mysql)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict = {}
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
 # Get Google Calendar API
 @app.route("/api/v1/calendar/", methods=["POST"])
 def calendar_api():
