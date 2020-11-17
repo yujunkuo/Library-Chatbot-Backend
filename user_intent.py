@@ -1,7 +1,8 @@
 ## User Intent
+
 import json
 
-def get_user_based(user_id: str, mysql):
+def get_user_recommendation(user_id: str, mysql):
     # Get user-based recommendation from database
     cur = mysql.connection.cursor()
     sql_command = "SELECT uu_list FROM user_info WHERE uid = %s;"
