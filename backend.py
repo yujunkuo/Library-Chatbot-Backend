@@ -49,23 +49,25 @@ mysql = MySQL(app)
 
 
 # Global Variables (Handlers)
-INTENT_CLASSIFIER = intent_classifier.IntentClassifier()  # Intent Classifier
+# INTENT_CLASSIFIER = intent_classifier.IntentClassifier()  # Intent Classifier
 FAQ_JUDGE = faq_judge.FAQJudge()  # FAQ Judge
-OTHER_INTENT_HANDLER = other_intent.OtherIntentHandler()  # Other Intent Handler
+# OTHER_INTENT_HANDLER = other_intent.OtherIntentHandler()  # Other Intent Handler
 
 
 def get_answer(sentence: str):
     faq_res = FAQ_JUDGE.get_faq_judge(sentence)
     if faq_res: 
         return {"class": "answer", "answer": faq_res}
-    intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
-    if intent_res == "search_book":
-        return book_intent.get_book_list(sentence, mysql)
-    elif intent_res == "borrow_place":
-        return {"class": "answer", "answer": "借場地捏"}
     else:
-        # return OTHER_INTENT_HANDLER.get_answer(sentence)
-        return {"class": "answer", "answer": "其他捏"}
+        return {"class": "answer", "answer": "很抱歉，我太笨了，無法回答這個問題，請洽詢館員哦"}
+    # intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
+    # if intent_res == "search_book":
+    #     return book_intent.get_book_list(sentence, mysql)
+    # elif intent_res == "borrow_place":
+    #     return {"class": "answer", "answer": "借場地捏"}
+    # else:
+    #     # return OTHER_INTENT_HANDLER.get_answer(sentence)
+    #     return {"class": "answer", "answer": "其他捏"}
 
 
 # Other Question API          

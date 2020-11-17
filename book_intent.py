@@ -223,7 +223,7 @@ def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: str, input_rating
             else:
                 hashtag_dict[h] = 1
     # Handle rating
-    if input_rating:
+    if input_rating in [None, "", "0"]:
         input_rating = float(input_rating)
         rating_count = (rating_count + 1) if rating_count else 1
         if rating:
