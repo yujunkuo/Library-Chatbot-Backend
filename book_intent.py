@@ -190,6 +190,7 @@ def get_book_info(mms_id: str, mysql):
     book_content, book_cover, book_hashtag, book_rating = sql_result[0]
     cur.close()
     # Parsing Hashtag
+    book_hashtag = book_hashtag.replace("'", '"') if book_hashtag else None
     book_hashtag_dict = json.loads(book_hashtag) if book_hashtag else dict()
     book_hashtag_list = sorted(book_hashtag_dict.items(), key=lambda x: x[1], reverse=True)
     max_n = 5 if len(book_hashtag_list) > 5 else len(book_hashtag_list)
