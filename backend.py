@@ -1,4 +1,3 @@
-import sys
 import time
 import yaml
 import datetime
@@ -18,7 +17,6 @@ import calendar_crawler
 
 ######### Construct App and Server Config #########
 # construct App
-sys.setdefaultencoding("utf-8")
 app = Flask(__name__)
 
 # Read Server Config
