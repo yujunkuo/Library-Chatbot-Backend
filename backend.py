@@ -18,7 +18,6 @@ import calendar_crawler
 
 ######### Construct App and Server Config #########
 # construct App
-reload(sys)
 sys.setdefaultencoding("utf-8")
 app = Flask(__name__)
 
