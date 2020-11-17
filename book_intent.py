@@ -205,7 +205,7 @@ def get_book_info(mms_id: str, mysql):
            "item_recommendation": item_recommendation_res, "asso_recommendation": asso_recommendation_res}
 
 # Public API to get book info
-def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: list, input_rating: str, mysql):
+def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: str, input_rating: str, mysql):
     cur = mysql.connection.cursor()
     sql_command = "SELECT hashtag, rating, rating_count FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
@@ -215,6 +215,7 @@ def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: list, input_ratin
     hashtag = hashtag.replace("'", '"')
     hashtag_dict = json.loads(hashtag) if hashtag else dict()
     if input_hashtag:
+        input_hashtag = input_hashtag.split(" ")
         for h in input_hashtag:
             if h in hashtag_dict:
                 hashtag_dict[h] += 1
