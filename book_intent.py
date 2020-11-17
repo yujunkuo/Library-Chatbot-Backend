@@ -212,7 +212,7 @@ def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: list, input_ratin
     hashtag, rating, rating_count = cur.fetchall()[0]
     cur.close()
     # Handle Hashtag
-    hashtag_dict = json.loads(hashtag)
+    hashtag_dict = json.loads(hashtag) if hashtag else dict()
     if input_hashtag:
         for h in input_hashtag:
             if h in hashtag_dict:
