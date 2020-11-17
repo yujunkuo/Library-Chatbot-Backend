@@ -59,7 +59,7 @@ def get_answer(sentence: str):
     if faq_res: 
         return {"class": "answer", "answer": faq_res}
     else:
-        return {"class": "answer", "answer": "很抱歉，我太笨了，無法回答這個問題，請洽詢館員哦"}
+        return {"class": "answer", "answer": "抱歉我還在學習中，請洽詢館員唷"}
     # intent_res = INTENT_CLASSIFIER.get_intent_classification(sentence)
     # if intent_res == "search_book":
     #     return book_intent.get_book_list(sentence, mysql)
