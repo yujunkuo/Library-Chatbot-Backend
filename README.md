@@ -1,46 +1,55 @@
-# Library-Chatbot-Backend
+# API Documentation
 
-## API Documentation
+## Book List API
 
-### Get Chatbot's Response & Answer
-----
-  Returns json data about the answer of the question and the processing time.
+> Returns json data about the book searching result of the question
 
 * **URL**
 
-  http://140.119.19.18:5000/api/v1/
+  http://140.119.19.18:5000/api/v1/book_list/
 
 * **Method:**
 
   `POST`
   
 *  **URL Params**
-
-   **Required:**
  
    None
 
 * **Data Params**
 
   `"question"=[str]`
+  
+  `"session_id"=[str]`
 
 * **Success Response:**
 
   * **Code:** 200 <br />
-    **Content:** `{ "answer" : "館藏中沒有此書籍", "handle_time" : 0.12 }`
+    **Content:** `{ "class": "book_list", "book_name": "暮光之城", "handle_time": 12.74, "session_id": "abc123", "book_list": [
+                      [
+                          "暮光之城. 布莉的重生",
+                          "麥爾 (Meyer, Stephenie)",
+                          991005224129705721
+                      ],
+                      [
+                          "暮光之城 : 新月",
+                          "麥爾 (Meyer, Stephenie)",
+                          991019540129705721
+                      ]
+                    ] 
+                  }`
  
 * **Error Response:**
 
-  * **Code:** 401 UNAUTHORIZED <br />
-    **Content:** `{ "error" : "未被授權進行此操作" }`
+  * **Code:** 4XX ERROR CODE <br />
 
 * **Sample Call:**
 
   ```javascript
     $.ajax({
       type : "POST",
-      url: "http://140.119.19.18:5000/api/v1/",
-      data: {"question": "我想找老人與海這本書"}
+      url: "http://140.119.19.18:5000/api/v1/book_list/",
+      data: {"question": "暮光之城這本書有在圖書館嗎", "session_id": "abc123"}
       dataType: "json", 
       success : function(r) {
         console.log(r);
