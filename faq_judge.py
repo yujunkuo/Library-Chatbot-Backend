@@ -8,7 +8,7 @@ class FAQJudge:
 
     def __init__(self):
         self._model = SentenceTransformer("distiluse-base-multilingual-cased")
-        self._df = pd.read_csv("./csv_files/faq_data.csv")
+        self._df = pd.read_csv("./csv_files/faq_data_1117.csv")
         # faqs_dict is Question-Answer's pair
         self._faqs_dict = dict()
         for k, v in zip(self._df["問題"], self._df["答案"]):
