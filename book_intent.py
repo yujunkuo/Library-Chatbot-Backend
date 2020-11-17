@@ -222,8 +222,11 @@ def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: list, input_ratin
     # Handle rating
     if input_rating:
         input_rating = float(input_rating)
-        rating_count += 1
-        rating = (rating * rating_count + input_rating) / rating_count 
+        rating_count = (rating_count + 1) if rating_count else 1
+        if rating:
+            rating = (rating * (rating_count - 1) + input_rating) / rating_count
+        else:
+            rating = input_rating / rating_count
     # Update Hashtag, rating and rating count
     cur = mysql.connection.cursor()
     sql_command = "UPDATE mms_info SET hashtag = %s, rating = %s, rating_count = %s WHERE mmsid = %s"
