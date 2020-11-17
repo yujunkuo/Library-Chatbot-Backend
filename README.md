@@ -414,7 +414,7 @@
     });
   ```
   
-## Other Question API (#TODO 2020-11-17 Not Yet Finished)
+## Other Question API
 
 > Returns json data about the answer of the question.
 
@@ -443,7 +443,7 @@
     "session_id": "abc123",
     "handle_time": 0.16,
     "class": "answer",
-    "answer": "其他捏"
+    "answer": "很抱歉，我太笨了，無法回答這個問題，請洽詢館員哦"
 }`
  
 * **Error Response:**
@@ -456,7 +456,7 @@
     $.ajax({
       type : "POST",
       url: "http://140.119.19.18:5000/api/v1/other/",
-      data: {"question": "討論室在幾樓", "session_id": "abc123"}
+      data: {"question": "我想找一些特別的書", "session_id": "abc123"}
       dataType: "json", 
       success : function(r) {
         console.log(r);
