@@ -163,7 +163,7 @@
     $.ajax({
       type : "POST",
       url: "http://140.119.19.18:5000/api/v1/book_upload/",
-      data: {"mms_id": "991019804019705721", "hashtag": "["好看", "懸疑"]", "rating": "3", "session_id": "abc123"}
+      data: {"mms_id": "991019804019705721", "hashtag": "好看 懸疑 刺激", "rating": "3", "session_id": "abc123"}
       dataType: "json", 
       success : function(r) {
         console.log(r);
