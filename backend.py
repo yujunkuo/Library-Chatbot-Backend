@@ -162,20 +162,19 @@ def faci_api():
     return jsonify(return_dict)
 
 # Get User-based Recommendation API
-@app.route("/api/v1/user_based/", methods=["POST"])
-def user_based_api():
+@app.route("/api/v1/user_recommendation/", methods=["POST"])
+def user_recommendation_api():
     data = request.get_json()
     user_id = data["user_id"]
     session_id = data["session_id"]
     start_time = time.time()
-    return_dict = user_intent.get_user_based(user_id, mysql)
+    return_dict = user_intent.get_user_recommendation(user_id, mysql)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
     return_dict["handle_time"] = handle_time
     return_dict["user_id"] = user_id
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
-
 
 
 ################## Main Function ##################
