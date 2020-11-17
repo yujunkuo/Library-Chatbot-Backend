@@ -464,13 +464,13 @@
     });
   ```
 
-## User-based recommendation API (#TODO 2020-11-17 Not Yet Finished)
+## User-based recommendation API
 
 > Returns json data about the user-based recommendation.
 
 * **URL**
 
-  Not Yet
+  http://140.119.19.18:5000/api/v1/user_recommendation/
 
 * **Method:**
 
@@ -482,12 +482,19 @@
 
 * **Data Params**
   
-  Not Yet
+  `"user_id"=[str]`
+  
+  `"session_id"=[str]`
   
 * **Success Response:**
 
   * **Code:** 200 <br />
-    **Content:** Not Yet
+    **Content:** `{
+    "session_id": "abc123",
+    "handle_time": 0.11,
+    "user_id": "123456,
+    "user_recommendation": "政治學##991019321629705721@@官僚政治與民主##991007638159705721@@The goals of competition law##991013342549705721@@永遠的0 = The eternal zero##991002173389705721
+}`
  
 * **Error Response:**
 
@@ -495,4 +502,14 @@
 
 * **Sample Call:**
 
-  Not Yet
+  ```javascript
+    $.ajax({
+      type : "POST",
+      url: "http://140.119.19.18:5000/api/v1/user_recommendation/",
+      data: {"user_id": "123456", "session_id": "abc123"}
+      dataType: "json", 
+      success : function(r) {
+        console.log(r);
+      }
+    });
+  ```
