@@ -79,6 +79,8 @@ def _get_all_book_info(books: list, authors: list, mysql):
             cur.execute(sql_command, (book_name, author_name, times))
             fetch_data += cur.fetchall()
         cur.close()
+        # Remove book name's \/ sign
+        fetch_data = [[each[0].replace("\/", ""), each[1], each[2]] for each in fetch_data]
         return fetch_data
     elif book_name:
         # First, filter totally identical book name
@@ -94,6 +96,8 @@ def _get_all_book_info(books: list, authors: list, mysql):
             cur.execute(sql_command, (book_name, times))
             fetch_data = cur.fetchall()
         cur.close()
+        # Remove book name's \/ sign
+        fetch_data = [[each[0].replace("\/", ""), each[1], each[2]] for each in fetch_data]
         return fetch_data
     elif author_name:
         # First, filter totally identical author
@@ -109,6 +113,8 @@ def _get_all_book_info(books: list, authors: list, mysql):
             cur.execute(sql_command, (author_name, times))
             fetch_data = cur.fetchall()
         cur.close()
+        # Remove book name's \/ sign
+        fetch_data = [[each[0].replace("\/", ""), each[1], each[2]] for each in fetch_data]
         return fetch_data
     else:
         # Return empty list if no book name or author data is given
