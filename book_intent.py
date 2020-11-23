@@ -192,6 +192,9 @@ def get_book_info(mms_id: str, mysql):
             loc_mms_id, loc_title, loc_author, loc_cover = curr_book_list[0]
             loc_res = f"{loc_mms_id}@@{loc_title}@#{loc_author}##{loc_cover}"
             asso_recommendation_list.append(loc_res)
+    # At least return 10 books
+    while len(asso_recommendation_list) < 10:
+        asso_recommendation_list.append("")
     asso_recommendation_res = "#@".join(asso_recommendation_list)
     # Get Book Introduction, Cover and HashTag
     sql_command = "SELECT content, cover, hashtag, rating FROM mms_info WHERE mmsid = %s;"
