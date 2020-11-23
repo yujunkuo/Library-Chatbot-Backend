@@ -178,13 +178,30 @@ def user_recommendation_api():
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
 
-# Get User-based Recommendation API
+# Get Top 10 Books API
 @app.route("/api/v1/book_top_ten/", methods=["POST"])
 def book_top_ten_api():
     data = request.get_json()
     session_id = data["session_id"]
     start_time = time.time()
     return_dict = book_intent.get_book_top_ten(mysql)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
+# Upload Browsing History API
+@app.route("/api/v1/browsing_upload/", methods=["POST"])
+def browsing_upload_api():
+    data = request.get_json()
+    session_id = data["session_id"]
+    user_id = data["user_id"]
+    mms_id = data["mms_id"]
+    start_time = data["start_time"]
+    end_time = data["end_time"]
+    start_time = time.time()
+    return_dict = user_intent.upload_browsing_history(user_id, mms_id, start_time, end_time, mysql)
     end_time = time.time()
     handle_time = round(end_time - start_time, 2)
     return_dict["handle_time"] = handle_time

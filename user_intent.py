@@ -1,6 +1,7 @@
 ## User Intent
 
 import json
+from datetime import datetime
 
 def get_user_recommendation(user_id: str, mysql):
     # Get user-based recommendation from database
@@ -18,5 +19,27 @@ def get_user_recommendation(user_id: str, mysql):
     user_recommendation_res = "@@".join(user_recommendation_list)
     return {"user_recommendation": user_recommendation_res}
 
-    
-
+def upload_browsing_history(user_id, mms_id, start_time, end_time, mysql):
+    date_format = "%Y-%m-%d %H:%M:%S"
+    start_time = datetime.strptime(start_time, date_format)
+    end_time = datetime.strptime(end_time, date_format)
+    df_time = end_time - start_time
+    df_time_in_seconds = df_time.total_seconds()
+    # Fetch old browsing history
+    cur = mysql.connection.cursor()
+    sql_command = "SELECT activity_logs FROM user_info WHERE uid = %s;"
+    cur.execute(sql_command, (user_id, ))
+    history = cur.fetchall()[0][0]
+    cur.close()
+    # Update new browsing history
+    history = json.loads(history) if history else dict()
+    if mms_id in history:
+        history[mms_id] += df_time_in_seconds
+    else:
+        history[mms_id] = df_time_in_seconds
+    cur = mysql.connection.cursor()
+    sql_command = "UPDATE user_info SET activity_logs = %s WHERE uid = %s"
+    cur.execute(sql_command, (history, user_id, ))
+    mysql.connection.commit()
+    cur.close()
+    return {"res": "success"}
