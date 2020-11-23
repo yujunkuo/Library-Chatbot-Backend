@@ -178,6 +178,19 @@ def user_recommendation_api():
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
 
+# Get User-based Recommendation API
+@app.route("/api/v1/book_top_ten/", methods=["POST"])
+def book_top_ten_api():
+    data = request.get_json()
+    session_id = data["session_id"]
+    start_time = time.time()
+    return_dict = book_intent.get_book_top_ten(mysql)
+    end_time = time.time()
+    handle_time = round(end_time - start_time, 2)
+    return_dict["handle_time"] = handle_time
+    return_dict["session_id"] = session_id
+    return jsonify(return_dict)
+
 
 ################## Main Function ##################
 def main():

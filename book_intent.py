@@ -155,12 +155,14 @@ def get_book_info(mms_id: str, mysql):
     item_recommendation_list = []
     for curr_mms_id in json.loads(item_recommendation_mms_id)[:10]:
         # print("current mms id: ", curr_mms_id)
-        sql_command = "SELECT title FROM mms_info WHERE mmsid = %s;"
+        sql_command = "SELECT mmsid, title, author, cover FROM mms_info WHERE mmsid = %s;"
         cur.execute(sql_command, (curr_mms_id, ))
-        curr_book_name_list = cur.fetchall()
-        curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
-        item_recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
-    item_recommendation_res = "@@".join(item_recommendation_list)
+        curr_book_list = cur.fetchall()
+        if curr_book_list:
+            loc_mms_id, loc_title, loc_author, loc_cover = curr_book_list[0]
+            loc_res = f"{loc_mms_id}@@{loc_title}@#{loc_author}##{loc_cover}"
+            item_recommendation_list.append(loc_res)
+    item_recommendation_res = "#@".join(item_recommendation_list)
     # Get association-based recommendation from database
     sql_command = """
     SELECT item_info.mmsid AS mmsid
@@ -183,12 +185,14 @@ def get_book_info(mms_id: str, mysql):
     asso_recommendation_list = []
     for curr_mms_id in asso_recommendation_mms_id:
         curr_mms_id = curr_mms_id[0]
-        sql_command = "SELECT title FROM mms_info WHERE mmsid = %s;"
+        sql_command = "SELECT mmsid, title, author, cover FROM mms_info WHERE mmsid = %s;"
         cur.execute(sql_command, (curr_mms_id, ))
-        curr_book_name_list = cur.fetchall()
-        curr_book_name = curr_book_name_list[0][0][:-2] if curr_book_name_list else ""
-        asso_recommendation_list.append(curr_book_name + "##" + str(curr_mms_id))
-    asso_recommendation_res = "@@".join(asso_recommendation_list)
+        curr_book_list = cur.fetchall()
+        if curr_book_list:
+            loc_mms_id, loc_title, loc_author, loc_cover = curr_book_list[0]
+            loc_res = f"{loc_mms_id}@@{loc_title}@#{loc_author}##{loc_cover}"
+            asso_recommendation_list.append(loc_res)
+    asso_recommendation_res = "#@".join(asso_recommendation_list)
     # Get Book Introduction, Cover and HashTag
     sql_command = "SELECT content, cover, hashtag, rating FROM mms_info WHERE mmsid = %s;"
     cur.execute(sql_command, (mms_id, ))
@@ -243,4 +247,17 @@ def upload_book_hashtag_and_rating(mms_id: str, input_hashtag: str, input_rating
     mysql.connection.commit()
     cur.close()
     # return TODO 1116
-    return 
+    return
+
+# Public API to get book info
+def get_book_top_ten(mysql):
+    cur = mysql.connection.cursor()
+    top_ten_list = []
+    sql_command = "SELECT mmsid, title, author, cover FROM mms_info WHERE author != '0' ORDER BY loan_times DESC LIMIT 10;"
+    cur.execute(sql_command)
+    for book in cur.fetchall():
+        loc_mms_id, loc_title, loc_author, loc_cover = book
+        loc_res = f"{loc_mms_id}@@{loc_title}@#{loc_author}##{loc_cover}"
+        top_ten_list.append(loc_res)
+    top_ten_res = "#@".join(top_ten_list)
+    return {"book_top_ten": top_ten_res}
