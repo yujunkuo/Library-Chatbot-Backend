@@ -32,6 +32,7 @@ def upload_browsing_history(user_id, mms_id, start_time, end_time, mysql):
     history = cur.fetchall()[0][0]
     cur.close()
     # Update new browsing history
+    history = history.replace("'", '"') if history else None
     history = json.loads(history) if history else dict()
     if mms_id in history:
         history[mms_id] += df_time_in_seconds
