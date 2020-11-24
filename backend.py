@@ -200,10 +200,10 @@ def browsing_upload_api():
     mms_id = data["mms_id"]
     start_time = data["start_time"]
     end_time = data["end_time"]
-    start_time = time.time()
+    x_start_time = time.time()
     return_dict = user_intent.upload_browsing_history(user_id, mms_id, start_time, end_time, mysql)
-    end_time = time.time()
-    handle_time = round(end_time - start_time, 2)
+    x_end_time = time.time()
+    handle_time = round(x_end_time - x_start_time, 2)
     return_dict["handle_time"] = handle_time
     return_dict["session_id"] = session_id
     return jsonify(return_dict)
