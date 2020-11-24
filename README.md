@@ -533,9 +533,13 @@
 * **Data Params**
   
   `"session_id"=[str]`
+  
   `"mms_id"=[str]`
+  
   `"user_id"=[str]`
+  
   `"start_time"=[str]`
+  
   `"end_time"=[str]`
   
 * **Success Response:**
@@ -558,10 +562,10 @@
       type : "POST",
       url: "http://140.119.19.18:5000/api/v1/browsing_upload/",
       data: {"session_id": "abc123",
-    "mms_id": "991000845869705721",
-    "user_id": "117",
-    "start_time": "2020-11-24 11:52:37",
-    "end_time": "2020-11-24 11:54:42"}
+             "mms_id": "991000845869705721",
+             "user_id": "117",
+             "start_time": "2020-11-24 11:52:37",
+             "end_time": "2020-11-24 11:54:42"}
       dataType: "json", 
       success : function(r) {
         console.log(r);
