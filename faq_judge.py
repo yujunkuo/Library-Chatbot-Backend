@@ -24,12 +24,12 @@ class FAQJudge:
             sim = self._cal_cosine_sim(sentence_embedding, faq_embedding)
             if sim > candidate_sim:
                 candidate_sim, candidate = sim, faq
-        # Cosine Similarity Threshold 0.9
-        if (candidate is None) or (candidate_sim < 0.8):
-            print(candidate_sim)
+        # Cosine Similarity Threshold 0.85
+        if (candidate is None) or (candidate_sim < 0.85):
+            print("常見問答相似度: ", candidate_sim)
             return None
         else:
-            print(candidate_sim)
+            print("常見問答相似度: ", candidate_sim)
             answer = self._faqs_dict[candidate]
             return answer
 
