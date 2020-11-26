@@ -63,8 +63,8 @@ def _get_faci_info(facis):
         sim = _cal_cosine_sim(current_embedding, entity_embedding)
         if sim > candidate_sim:
             candidate_sim, candidate = sim, entity
-    # Cosine Similarity Threshold 0.5
-    if (candidate is None) or (candidate_sim < 0.5):
+    # Cosine Similarity Threshold 0.65
+    if (candidate is None) or (candidate_sim < 0.65):
         print("設備: ", candidate)
         print("設備相似度: ", candidate_sim)
         return {"faci_name": "", "introduce": "", "floor": "", "number": "", "classify": ""}
