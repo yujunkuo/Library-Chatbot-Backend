@@ -73,6 +73,6 @@ def _get_faci_info(facis):
         return {"faci_name": val["entity"], "introduce": val["introduce"], "floor": val["floor"], "number": val["number"], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"]}
 
 # (Protected function) Calculate Cosine Similarity between to sentences
-def _cal_cosine_sim(self, x, y):
+def _cal_cosine_sim(x, y):
     res = np.dot(x, y) / (np.linalg.norm(x)*np.linalg.norm(y))
     return res
