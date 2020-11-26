@@ -25,9 +25,11 @@ class FAQJudge:
             if sim > candidate_sim:
                 candidate_sim, candidate = sim, faq
         # Cosine Similarity Threshold 0.9
-        if (candidate is None) or (candidate_sim < 0.9):
+        if (candidate is None) or (candidate_sim < 0.8):
+            print(candidate_sim)
             return None
         else:
+            print(candidate_sim)
             answer = self._faqs_dict[candidate]
             return answer
 
