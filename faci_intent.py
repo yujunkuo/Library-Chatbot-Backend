@@ -71,7 +71,7 @@ def _get_faci_info(facis):
     else:
         print("設備相似度: ", candidate_sim)
         val = df[df["entity"] == candidate]
-        return {"faci_name": val["entity"].values[0], "introduce": val["introduce"].values[0], "floor": val["floor"].values[0], "number": val["number"].values[0], "classify": val["classify(1:設備,2:服務,3:場地,4:館藏資料)"].values[0]}
+        return {"faci_name": val["entity"].values[0], "introduce": val["introduce"].values[0], "floor": int(val["floor"].values[0]), "number": int(val["number"].values[0]), "classify": int(val["classify(1:設備,2:服務,3:場地,4:館藏資料)"].values[0])}
 
 # (Protected function) Calculate Cosine Similarity between to sentences
 def _cal_cosine_sim(x, y):
