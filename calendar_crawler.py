@@ -104,6 +104,8 @@ def get_current_week_calendar(input_day: int = 0):
                 skip_set.add(each)
     # 回傳結果
     curr_day_index = week_list.index(curr_date.day)
+    print("今天日期: ", curr_date.day)
+    print("Index: ", curr_day_index)
     week_list_with_date = [(curr_date + datetime.timedelta(days=i-curr_day_index)).strftime('%Y-%m-%d') for i in range(7)]
     for i in range(len(result)):
         for j in range(len(result[i])):
