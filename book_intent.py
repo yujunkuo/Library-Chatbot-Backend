@@ -93,7 +93,7 @@ def _get_all_book_info(books: list, authors: list, mysql):
         #     times = int(20-len(list(fetch_data)))
         sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s ORDER BY LENGTH(title) LIMIT 20;"
         book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
-        cur.execute(sql_command, (book_name, times))
+        cur.execute(sql_command, (book_name, ))
         fetch_data = cur.fetchall()
         cur.close()
         # Remove book name's / sign
