@@ -70,6 +70,14 @@ def _get_all_book_info(books: list, authors: list, mysql):
         author_name = "%" + author_name + "%"
         cur.execute(sql_command, (book_name, author_name))
         fetch_data = cur.fetchall()
+        # Then, filter book name or author name identical
+        if len(list(fetch_data)) < 20:
+            times = int(20-len(list(fetch_data)))
+            sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s OR author LIKE %s LIMIT %s;"
+            book_name = "%" + book_name + "%"
+            author_name = "%" + author_name + "%"
+            cur.execute(sql_command, (book_name, author_name, times))
+            fetch_data += cur.fetchall()
         # Then, filter partially identical
         if len(list(fetch_data)) < 20:
             times = int(20-len(list(fetch_data)))
