@@ -84,17 +84,17 @@ def _get_all_book_info(books: list, authors: list, mysql):
         return fetch_data
     elif book_name:
         # First, filter totally identical book name
-        sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s LIMIT 20;"
-        book_name = "%" + book_name + "%"
-        cur.execute(sql_command, (book_name, ))
+        # sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s LIMIT 20;"
+        # book_name = "%" + book_name + "%"
+        # cur.execute(sql_command, (book_name, ))
+        # fetch_data = cur.fetchall()
+        # # Then, filter partially identical
+        # if len(list(fetch_data)) < 20:
+        #     times = int(20-len(list(fetch_data)))
+        sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s ORDER BY LENGTH(title) LIMIT 20;"
+        book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
+        cur.execute(sql_command, (book_name, times))
         fetch_data = cur.fetchall()
-        # Then, filter partially identical
-        if len(list(fetch_data)) < 20:
-            times = int(20-len(list(fetch_data)))
-            sql_command = "SELECT DISTINCT title, author, mmsid FROM mms_info WHERE title LIKE %s LIMIT %s;"
-            book_name = "%" + "%".join([word for word in book_name[1:-1]]) + "%"
-            cur.execute(sql_command, (book_name, times))
-            fetch_data = cur.fetchall()
         cur.close()
         # Remove book name's / sign
         fetch_data = [[each[0].replace("/", "").strip(), each[1], each[2]] for each in fetch_data]
