@@ -146,6 +146,9 @@ def get_book_info(mms_id: str, mysql):
     for i in range(len(holding_list)):
         location = holding_list[i]["subLocation"]
         available = holding_list[i]["availabilityStatus"]
+        # Location - Remove text within ()
+        while location.find("(") != -1 and location.find(")") != -1:
+            location = location[:location.find("(")] + location[location.find(")")+1:]
         location_and_available.append([location, available])
     # Get item-based recommendation from database
     cur = mysql.connection.cursor()
